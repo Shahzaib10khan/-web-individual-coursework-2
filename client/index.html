@@ -195,6 +195,19 @@
                         this.allCourses = data;
                     });
                 },
+                searchLessons(){
+                    const requestOptions = {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json",'Accept': 'application/json' },
+                        body: JSON.stringify({keyword: this.searchData})
+                    };
+                    fetch(`http://127.0.0.1:5000/search-lessons`, requestOptions)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.allCourses = data;
+                        });
+
+                },
                 addToCart(lesson){
                     let exists = this.cart.includes(lesson)
                     lesson.space -= 1;

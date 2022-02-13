@@ -195,6 +195,74 @@
                         this.allCourses = data;
                     });
                 },
+                addToCart(lesson){
+                    let exists = this.cart.includes(lesson)
+                    lesson.space -= 1;
+                    if (exists) {
+                        lesson.reserved += 1;
+                    }else{
+                        lesson.reserved += 1;
+                        this.cart.push(lesson)
+                    }
+                    // console.log(JSON.stringify(this.cart));
+                },
+                buyCourse(){
+                    if (this.name.length == 0) {
+                        this.errors.name = "Name number is required."
+                        return;
+                    }
+                    else if (/[^a-zA-Z]/.test(this.name)) {
+                        this.errors.name = "You must have enter a valid name."
+                        console.log('here')
+                        return;
+                    }
+                    if (this.phone.length == 0) {
+                        this.errors.phone = "Phone number is required."
+                        return;
+                    }
+                    else if (this.phone.length < 10) {
+                        this.errors.phone = "You must have enter 10 digits."
+                        return;
+                    }else{
+                        isValid = true;
+                    }
+                    let user = {full_name: this.name, phone: this.phone}
+                    const requestOptions = {
+                        method: "PUT",
+                        headers: {"Content-Type": "application/json",'Accept': 'application/json' },
+                        body: JSON.stringify({cart: this.cart, user: user} )
+                    };
+                    fetch(`http://127.0.0.1:5000/buy-lesson`, requestOptions)
+                        .then(response => response.json())
+                        .then(data => {
+                            $('#successModal').modal('show');
+                            console.log(this.cart);
+                            setTimeout(() => {
+                                this.successAlert = false;
+                                this.checkout = false;
+                                $('#successModal').modal('hide');
+                            }, 3000);
+                        });
+
+                    this.successAlert = true;
+                    this.cart = [];
+                    this.errors = {
+                        phone: '',
+                        name: ''
+                    }
+                },
+
+                // filterCourses(){
+                //     let data = [];
+                //     this.lessons.forEach(el => {
+                //         let name = el.course.toLowerCase();
+                //         let city = el.city.toLowerCase();
+                //         if (name.includes(this.search) || city.includes(this.search)) {
+                //             data.push(el)
+                //         }
+                //         this.allCourses = data;
+                //     });
+                // },
             },
         });
     </script>

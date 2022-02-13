@@ -25,6 +25,43 @@ MongoClient.connect(url, function(err, client) {
           res.json(result)
         })
     });
+
+    app.put('/update-lesson/:id', function (req, res) {
+      const {course, thumbnail, description, city, price, space, reserved} = req.body;
+      let updatedData = { $set: {space} }
+        db.collection('lessons').findOneAndUpdate({_id : new mongodb.ObjectId(req.params.id)}, updatedData)
+          .then(obj => {
+            res.json(obj)
+          })
+    });
+
+    app.put('/buy-lesson', function (req, res) {
+      // return res.json(req.body.user)
+        req.body.cart.forEach(data => {
+          db.collection('lessons').findOne({_id : new mongodb.ObjectId(data._id)})
+          .then(obj => {
+            if (obj.space == 0) {
+              db.collection('lessons').findOne({_id : new mongodb.ObjectId(data._id)})
+              .then(obj => {
+                res.json(obj)
+              })
+            }else{
+              let updatedData = { $set: {space : obj.space-data.reserved} }
+              db.collection('lessons').findOneAndUpdate({_id : new mongodb.ObjectId(data._id)}, updatedData)
+              .then(obj => {
+                let order = {
+                  courseName: data.course,
+                  full_name: req.body.user.full_name,
+                  phone: req.body.user.phone,
+                  quantity: data.reserved
+                }
+                createOrder(order);
+                res.json(obj)
+              })
+            }
+          })
+        });
+    });
 })
 
 

@@ -18,6 +18,14 @@ MongoClient.connect(url, function(err, client) {
     console.log('db connected!');
     db = client.db('vueRestAPI');
 
+    function createOrder(order){
+      db.collection('orders').insertOne(order, function (
+        err,
+        result
+      ) {
+        console.log(result)
+      })
+    }
 
     app.get('/get-lessons', function (req, res) {
         // gretting data from server

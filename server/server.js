@@ -18,6 +18,34 @@ MongoClient.connect(url, function(err, client) {
     console.log('db connected!');
     db = client.db('vueRestAPI');
 
+    app.post('/create-lesson', function (req, res) {
+        // Sending request to create a data
+        db.collection('lessons').insertOne(req.body, function (
+          err,
+          result
+        ) {
+          res.json(result)
+        })
+    });
+
+    app.post('/create-order', function (req, res) {
+        // Sending request to create a data
+        db.collection('orders').insertOne(req.body, function (
+          err,
+          result
+        ) {
+          res.json(result)
+        })
+    });
+
+    app.post('/search-lessons', function (req, res) {
+      // return res.send(req.body)
+        // Searching data in database
+        db.collection('lessons').find({'course': {'$regex': req.body.keyword, '$options' : 'i'}}).toArray(function(err, result) {
+          res.json(result)
+        })
+    });
+
     function createOrder(order){
       db.collection('orders').insertOne(order, function (
         err,

@@ -231,6 +231,30 @@
                     //     }
                     // });
                 },
+
+                validate(){
+                    if (this.name.length == 0) {
+                        this.errors.name = "Name number is required.",
+                        this.isValid = false
+                    }
+                    else if (/[^a-zA-Z]/.test(this.name)) {
+                        this.errors.name = "You must have enter a valid name."
+                        this.isValid = false
+                    }
+                    if (this.phone.length == 0) {
+                        this.errors.phone = "Phone number is required."
+                        this.isValid = false
+                    }
+                    else if (this.phone.length < 10) {
+                        this.errors.phone = "You must have enter 10 digits."
+                        this.isValid = false
+                    }
+                    
+                    else if (!/[^a-zA-Z]/.test(this.name) && this.phone.length == 10){
+                        this.isValid = true;
+                        this.errors = {phone: '', name: ''}
+                    }
+                },
                 buyCourse(){
                     if (this.name.length == 0) {
                         this.errors.name = "Name number is required."

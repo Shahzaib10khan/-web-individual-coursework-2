@@ -206,6 +206,45 @@
                     }
                     // console.log(JSON.stringify(this.cart));
                 },
+                sortCourse() {
+                    if (this.sort == 'assending') {
+                            switch (this.filter) {
+                                case 'subject':
+                                        this.allCourses.sort((a, b) => (a.course > b.course) ? 1 : -1)
+                                    break;
+                                case 'city':
+                                        this.allCourses.sort((a, b) => (a.city > b.city) ? 1 : -1)
+                                    break;
+                                case 'price':
+                                        this.allCourses.sort((a, b) => (a.price > b.price) ? 1 : -1)
+                                    break;
+                                case 'availability':
+                                        this.allCourses.sort((a, b) => (a.space > b.space) ? -1 : 1)
+                                    break;
+                            
+                                default:
+                                    break;
+                            }
+                    }else if (this.sort == 'descending'){
+                            switch (this.filter) {
+                                case 'subject':
+                                    this.allCourses.reverse((a, b) => (a.course > b.course) ? 1 : -1)
+                                    break;
+                                case 'city':
+                                    this.allCourses.reverse((a, b) => (a.city > b.city) ? 1 : -1)
+                                    break;
+                                case 'price':
+                                    this.allCourses.reverse((a, b) => (a.price > b.price) ? 1 : -1)
+                                    break;
+                                case 'availability':
+                                    this.allCourses.reverse((a, b) => (a.space > b.space) ? -1 : 1)
+                                    break;
+                            
+                                default:
+                                    break;
+                        }
+                    }
+                },
                 removeFromCart(subject){
                     console.log(subject)
                     if (this.cart.includes(subject)) {

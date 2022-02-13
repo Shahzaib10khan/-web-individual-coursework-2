@@ -206,6 +206,31 @@
                     }
                     // console.log(JSON.stringify(this.cart));
                 },
+                removeFromCart(subject){
+                    console.log(subject)
+                    if (this.cart.includes(subject)) {
+                        subject.space += 1;
+                        
+                        if (subject.reserved > 0) {
+                            subject.reserved -= 1;
+                        }
+                        if (subject.reserved == 0) {
+                            this.cart = this.cart.filter(obj => {
+                                return obj.id != subject.id
+                            })
+                            console.log(subject)
+                        }
+                    }
+                    
+                    // this.cart.forEach((el) => {
+                    //     subject.space += 1;
+                    //     subject.reserved -= 1;
+                    //     console.log(subject)
+                    //     if (subject.reserved == 0) {
+                    //         this.cart.pop(subject)
+                    //     }
+                    // });
+                },
                 buyCourse(){
                     if (this.name.length == 0) {
                         this.errors.name = "Name number is required."

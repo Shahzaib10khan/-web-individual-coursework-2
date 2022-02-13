@@ -17,6 +17,14 @@ const url = 'mongodb+srv://vue_rest_api:12345@cluster0.bifqg.mongodb.net/vueRest
 MongoClient.connect(url, function(err, client) {
     console.log('db connected!');
     db = client.db('vueRestAPI');
+
+
+    app.get('/get-lessons', function (req, res) {
+        // gretting data from server
+        db.collection('lessons').find({}).toArray(function(err, result) {
+          res.json(result)
+        })
+    });
 })
 
 

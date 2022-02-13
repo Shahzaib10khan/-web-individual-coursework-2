@@ -184,11 +184,18 @@
                 }
             },
             mounted() {
-                
+                this.getAllCourses();
             },
             computed: {},
             methods: {
-            }
+                getAllCourses(){
+                    fetch(`http://127.0.0.1:5000/get-lessons`)
+                    .then(response => response.json())
+                    .then(data => {
+                        this.allCourses = data;
+                    });
+                },
+            },
         });
     </script>
 </body>

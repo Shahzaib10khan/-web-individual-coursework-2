@@ -1,0 +1,196 @@
+<html>
+
+<head>
+    <title>Express API's</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="./lessons.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid blue;
+            border-bottom: 8px solid blue;
+            width: 32px;
+            height: 32px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+            @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body class="bg-dark">
+    <div id="app">
+        <div class="container">
+            <div class="row" v-if="!checkout">
+                <div class="col-1">
+                    <div class="form text-white" style="margin-left: -50px; margin-top: 25px;">
+                        <h3>Sort By:</h3>
+                        <div class="form-group mt-5">
+                            <select v-model="filter" class="form-control" v-on:change="sortCourse">
+                                <option value="">Choose Any..</option>
+                                <option value="subject">Subject</option>
+                                <option value="city">City</option>
+                                <option value="price">Price</option>
+                                <option value="availability">Availability</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <div class="form-check">
+                            <input type="radio" v-model="sort" value="assending" id="assending" class="form-check-input" v-on:change="sortCourse">
+                            <label for="assending" class="form-check-label ml-3">Ascending </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" v-model="sort" value="descending" id="descending" class="form-check-input" v-on:change="sortCourse">
+                            <label for="descending" class="form-check-label ml-3">Descending </label>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-10">
+                    <h3 class="text-white mt-4 mb-3">Available Lessons</h3>
+                    <div>
+                        <input type="text" class="form-control" placeholder="Search by course name..." v-model="searchData" v-on:input="searchLessons">
+                    </div>
+                    <div class="row">
+                        <div
+                            class="col-12 d-flex justify-content-center mt-2"
+                            v-if="allCourses.length <= 0"
+                        >
+                            <div class="loader"></div>
+                        </div>
+                        
+                        <div class="col-4 mt-4" v-for="lesson in allCourses" :key="lesson.id">
+                            <div class="card" style="width: 18rem;">
+                                <div class="text-center">
+                                    <img :src="lesson.thumbnail" class="card-img-top" alt="logo" style="height: 128px; object-fit: cover;">
+                                </div>
+                                <div class="card-title text-center mt-1">
+                                    <strong>{{ lesson.course }}</strong>
+                                </div>
+                                <div class="card-body">
+                                    <strong>City: </strong>{{lesson.city}} <hr>
+                                    <strong>Price: </strong>{{lesson.price}} <hr>
+                                    {{lesson.description.substr(0, 50) + '...'}}
+                                </div>
+                                
+                                <div class="row card-footer justify-content-center">
+                                    <div class="col-6">
+                                        <button class="btn btn-primary" v-on:click="addToCart(lesson)" :disabled="lesson.space <= 0">Add to cart</button>
+                                    </div>
+                                    <div class="col-6 mt-1">
+                                        <strong> Space: {{lesson.space}} </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-1 mt-4">
+                   <button class="btn btn-primary" v-on:click="checkout=true" :disabled="cart.length <= 0">Cart ({{cart.length}})</button>
+                </div>
+            </div>
+            <!-- Checkout -->
+            <div v-if="checkout">
+                <button class="btn btn-primary" v-on:click="checkout = false">Back</button>
+                 <ul class="list-group mt-4">
+                    <div class="row">
+                        <div class="col-4" v-for="(subject, index) in cart" :key="subject.id">
+                            <div class="card" style="width: 18rem;">
+                                <div class="text-center">
+                                    <img class="card-img-top":src="subject.thumbnail" style="width: 128px; height: 128px;" alt="Card image cap">
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{subject.course}}</h5>
+                                    <p class="card-text">{{subject.description}}</p>
+                                    <div class="d-flex justify-content-between">
+                                        <strong>Qty: {{subject.reserved}} </strong>
+                                        <button class="btn btn-md btn-danger" v-on:click="removeFromCart(subject)">Delete</i></button>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </ul>
+                <div class="text-white mt-5">
+                    <form class="form" v-on:submit.prevent="buyCourse">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="name" v-model="name" class="form-control" id="name" v-on:input="validate">
+                            <div class="text-danger">{{errors.name}}</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone: </label>
+                            <input type="number" v-model="phone" class="form-control" id="phone" v-on:input="validate">
+                            <div class="text-danger">{{errors.phone}}</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" :disabled="successAlert || !isValid">Checkout</button>
+                      </form>
+                </div>
+            </div>
+              
+            <!-- Modal -->
+            <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                        <div class="modal-body">
+                            <!-- <div class="alert alert-success" role="alert" v-if="successAlert"> -->
+                                <h3>Your form is successfully submitted! </h3>
+                            <!-- </div> -->
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" data-dismiss="modal">Thanks!</button>
+                        </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap script -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <!-- Vue Script -->
+    <script>
+        var webstore = new Vue({
+            el: '#app',
+            data() {
+                return{
+                    projectName: 'Here will be the project name.',
+                    cart: [],
+                    allCourses: [],
+                    errors: {
+                        phone: '',
+                        name: ''
+                    },
+                    filter: '',
+                    sort: '',
+                    checkout: false,
+                    searchData: '',
+                    name: '',
+                    phone: '',
+                    successAlert: false,
+                    isValid: false,
+                }
+            },
+            mounted() {
+                
+            },
+            computed: {},
+            methods: {
+            }
+        });
+    </script>
+</body>
+
+</html>

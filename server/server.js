@@ -1,18 +1,21 @@
 const express = require("express");
-const cors = require("cors");
 const MongoClient = require('mongodb').MongoClient;
 const mongodb = require('mongodb');
+const {logger} = require('./middleware/logger')
 
 const app = express();
 
 app.use(express.json());
-app.use(cors())
+app.use ((req,res,next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+})
 app.use(express.static("../client"))
 
 app.get('/hello', (req, res) => res.send('hello'))
 
 const Port = process.env.PORT || 5000;
-const url = 'mongodb+srv://vue_rest_api:12345@cluster0.bifqg.mongodb.net/vueRestAPI?retryWrites=true&w=majority';
+const url = 'mongodb+srv://vue_rest_api:BalajKhan10@cluster0.bifqg.mongodb.net/vueRestAPI?retryWrites=true&w=majority';
 
 MongoClient.connect(url, function(err, client) {
     console.log('db connected!');
@@ -38,10 +41,13 @@ MongoClient.connect(url, function(err, client) {
         })
     });
 
-    app.post('/search-lessons', function (req, res) {
+    app.post('/search-lessons', logger, function (req, res) {
       // return res.send(req.body)
         // Searching data in database
-        db.collection('lessons').find({'course': {'$regex': req.body.keyword, '$options' : 'i'}}).toArray(function(err, result) {
+        db.collection('lessons').find({"$or":[
+          {'course': {'$regex': req.body.keyword, '$options' : 'i'}},
+          {'city': {'$regex': req.body.keyword, '$options' : 'i'}}
+        ]}).toArray(function(err, result) {
           res.json(result)
         })
     });
@@ -55,7 +61,7 @@ MongoClient.connect(url, function(err, client) {
       })
     }
 
-    app.get('/get-lessons', function (req, res) {
+    app.get('/get-lessons', logger, function (req, res) {
         // gretting data from server
         db.collection('lessons').find({}).toArray(function(err, result) {
           res.json(result)
@@ -71,7 +77,7 @@ MongoClient.connect(url, function(err, client) {
           })
     });
 
-    app.put('/buy-lesson', function (req, res) {
+    app.put('/buy-lesson',logger, function (req, res) {
       // return res.json(req.body.user)
         req.body.cart.forEach(data => {
           db.collection('lessons').findOne({_id : new mongodb.ObjectId(data._id)})
@@ -102,4 +108,4 @@ MongoClient.connect(url, function(err, client) {
 
 
 
-app.listen(Port, () => console.log('Server is running...'))
+app.listen(Port, () => console.log(`Server is running on port http://127.0.0.1:5000`))
